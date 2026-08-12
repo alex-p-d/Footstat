@@ -1,2 +1,3 @@
 .venv/
 Footstat/.env
+Footstat/.streamlit/secrets.toml
