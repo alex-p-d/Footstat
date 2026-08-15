@@ -11,21 +11,23 @@ def init_connection() -> Client:
 supabase = init_connection()
 
 st.title("Footstat")
-filter_button = st.selectbox("Goals", options=[1,2,3,4], index=2)
+options=["1+","2+","3+","4+"]
+filter_button = st.selectbox("Goals", options=options, index=2)
 
 def filter_options(goals):
     if filter_button == goals:
-
-        or_filter = f"hometeamscorefull.gt.{goals},awayteamscorefull.gt.{goals}"
-        response = supabase.table("matchtest").select("home_team:teamtest!hometeamid_fk(name), hometeamscorehalf, hometeamscorefull, away_team:teamtest!awayteamid_fk(name), awayteamscorehalf, awayteamscorefull").gt("hometeamscorefull", goals).or_(or_filter).execute()
+        goals_selection = int(goals.replace("+" , ""))
+        or_filter = f"hometeamscorefull.gte.{goals_selection},awayteamscorefull.gte.{goals_selection}"
+        response = supabase.table("matchtest").select("home_team:teamtest!hometeamid_fk(name), hometeamscorehalf, hometeamscorefull, away_team:teamtest!awayteamid_fk(name), awayteamscorehalf, awayteamscorefull, date").or_(or_filter).order("date",desc=True).execute()
 
         df = pd.json_normalize(response.data)
 
-        df = df[["home_team.name","hometeamscorehalf","hometeamscorefull","away_team.name","awayteamscorehalf","awayteamscorefull"]]
-        df.columns = ["Home Team", "Home Half Time Score", "Home Final Score", "Away Team", "Away Half Time Score", "Away Final Score"]
+        df = df[["home_team.name","hometeamscorehalf","hometeamscorefull","away_team.name","awayteamscorehalf","awayteamscorefull", "date"]]
+        df.columns = ["Home Team", "Home Half Time Score", "Home Final Score", "Away Team", "Away Half Time Score", "Away Final Score", "Date"]
 
         return df
 
 result_table = filter_options(filter_button)
 
 st.dataframe(result_table)
+
