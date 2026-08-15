@@ -57,6 +57,7 @@ matches_list = (df[matches_columns]
                                .to_dict(orient='records'))
 
 # insert into postgres
+# incoming premier league season
 
 # response = (
 #     supabase.table("team")
@@ -70,6 +71,7 @@ matches_list = (df[matches_columns]
 #     .execute()
 # )
 
+# previous season just using for testing currently
 response = (
     supabase.table("teamtest")
     .upsert(teams_list)
