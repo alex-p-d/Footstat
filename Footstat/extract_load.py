@@ -11,7 +11,7 @@ TOKEN = os.getenv("API_KEY")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 supabase: Client = create_client(SUPABASE_URL,SUPABASE_KEY)
-uri = 'https://api.football-data.org/v4/competitions/PL/matches'
+uri = 'https://api.football-data.org/v4/competitions/PL/matches?season=2026'
 headers = { 'X-Auth-Token': TOKEN }
 ###############
 
@@ -58,7 +58,7 @@ matches_list = (df[matches_columns]
 
 # insert into postgres
 # incoming premier league season
-
+print(matches_list)
 response = (
     supabase.table("team")
     .upsert(teams_list)
