@@ -12,7 +12,7 @@ TOKEN = os.getenv("API_KEY")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 supabase: Client = create_client(SUPABASE_URL,SUPABASE_KEY)
-uri = 'https://api.football-data.org/v4/competitions/PL/matches'
+uri = 'https://api.football-data.org/v4/competitions/ELC/matches'
 headers = { 'X-Auth-Token': TOKEN }
 ###############
 
