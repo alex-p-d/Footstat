@@ -23,11 +23,15 @@ def filter_options(goals):
         df = pd.json_normalize(response.data)
 
         df = df[["home_team.name","hometeamscorehalf","hometeamscorefull","away_team.name","awayteamscorehalf","awayteamscorefull", "date"]]
-        df.columns = ["Home Team", "Home Half Time Score", "Home Final Score", "Away Team", "Away Half Time Score", "Away Final Score", "Date"]
+        df.columns = ["Home Team", "Home Half Score", "Home Final Score", "Away Team", "Away Half Score", "Away Final Score", "Date"]
 
         return df
 
 result_table = filter_options(filter_button)
 
-st.dataframe(result_table)
+
+
+st.dataframe(result_table,
+             use_container_width=False, 
+             hide_index=True,)
 
