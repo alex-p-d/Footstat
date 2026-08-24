@@ -18,7 +18,7 @@ def filter_options(goals):
     if filter_button == goals:
         goals_selection = int(goals.replace("+" , ""))
         or_filter = f"hometeamscorefull.gte.{goals_selection},awayteamscorefull.gte.{goals_selection}"
-        response = supabase.table("matchtest").select("home_team:teamtest!hometeamid_fk(name), hometeamscorehalf, hometeamscorefull, away_team:teamtest!awayteamid_fk(name), awayteamscorehalf, awayteamscorefull, date").or_(or_filter).order("date",desc=True).execute()
+        response = supabase.table("match").select("home_team:team!hometeamid_fk(name), hometeamscorehalf, hometeamscorefull, away_team:team!awayteamid_fk(name), awayteamscorehalf, awayteamscorefull, date").or_(or_filter).order("date",desc=True).execute()
 
         df = pd.json_normalize(response.data)
 

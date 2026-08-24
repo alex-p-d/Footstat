@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 import pandas as pd
 from supabase import create_client, Client
+import numpy as np
 
 ###############
 load_dotenv()
@@ -11,7 +12,7 @@ TOKEN = os.getenv("API_KEY")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 supabase: Client = create_client(SUPABASE_URL,SUPABASE_KEY)
-uri = 'https://api.football-data.org/v4/competitions/PL/matches?season=2026'
+uri = 'https://api.football-data.org/v4/competitions/PL/matches'
 headers = { 'X-Auth-Token': TOKEN }
 ###############
 
@@ -54,11 +55,17 @@ matches_list = (df[matches_columns]
                                'score.fullTime.home':'hometeamscorefull',
                                'score.halfTime.away':'awayteamscorehalf',
                                'score.fullTime.away':'awayteamscorefull',})
+                               .replace({np.nan: None})
                                .to_dict(orient='records'))
-
 # insert into postgres
 # incoming premier league season
-print(matches_list)
+
+score_cols = ['hometeamscorehalf', 'hometeamscorefull', 'awayteamscorehalf', 'awayteamscorefull']
+for match in matches_list:
+    for col in score_cols:
+        if match.get(col) is not None:
+            match[col] = int(match[col])
+
 response = (
     supabase.table("team")
     .upsert(teams_list)
