@@ -23,7 +23,7 @@ def filter_options(goals):
         df = pd.json_normalize(response.data)
 
         df = df[["home_team.name","hometeamscorehalf","hometeamscorefull","away_team.name","awayteamscorehalf","awayteamscorefull", "date"]]
-        df.columns = ["League" , "Home Team", "Home Half Score", "Home Final Score", "Away Team", "Away Half Score", "Away Final Score", "Date"]
+        df.columns = ["Home Team", "Home Half Score", "Home Final Score", "Away Team", "Away Half Score", "Away Final Score", "Date"]
 
         return df
 
