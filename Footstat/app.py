@@ -11,10 +11,13 @@ def init_connection() -> Client:
 supabase = init_connection()
 
 st.title("Footstat")
-options=["1+","2+","3+","4+"]
-filter_button = st.selectbox("Goals", options=options, index=2)
+options_goals=["1+","2+","3+","4+"]
+filter_button = st.selectbox("Goals", options=options_goals, index=2)
+options_leagues=["Championship England, League 1, League 2, National League"]
 
-def filter_options(goals):
+filter_league_button = st.selectbox("Leagues", options=options_leagues)
+
+def filter_options_table(goals):
     if filter_button == goals:
         goals_selection = int(goals.replace("+" , ""))
         or_filter = f"hometeamscorefull.gte.{goals_selection},awayteamscorefull.gte.{goals_selection}"
@@ -30,11 +33,22 @@ def filter_options(goals):
         df.columns = ["League" , "Home Team", "Home Half Score", "Home Final Score", "Away Team", "Away Half Score", "Away Final Score", "Date"]
 
         return df
-result_table = filter_options(filter_button)
+
+
+
+
+
+result_table = filter_options_table(filter_button)
+league_options = filter_league_button(filter_league_button)
+
 
 
 
 st.dataframe(result_table,
              use_container_width=False, 
              hide_index=True,)
+
+st.dataframe(league_options,
+             use_container_width=False,
+             hide_index=True)
 
