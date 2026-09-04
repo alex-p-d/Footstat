@@ -114,7 +114,7 @@ matches_list = (final_df[matches_columns]
               .copy()
               .rename(columns={'ID':'id',
                                'Date':'date',
-                               'League':'group',
+                               'League':'League',
                                'Home Team ID':'hometeamid',
                                'Away Team ID':'awayteamid',
                                'Home Team HF Score':'hometeamscorehalf',
