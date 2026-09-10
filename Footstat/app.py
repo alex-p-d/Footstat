@@ -1,7 +1,6 @@
 import streamlit as st
 from supabase import create_client, Client
 import pandas as pd
-import altair as alt
 
 @st.cache_resource
 def init_connection() -> Client:
@@ -31,27 +30,20 @@ def filter_options_table(goals,league):
 
         df = df[["League", "home_team.name", "hometeamscorehalf", "hometeamscorefull", "away_team.name", "awayteamscorehalf", "awayteamscorefull", "date"]]
         
-        df.columns = ["League" , "Home Team", "Home Half Score", "Home Final Score", "Away Team", "Away Half Score", "Away Final Score", "Date"]
+        df.columns = ["League" , "Home", "HT-H", "HT-F", "Away", "AW-H", "AW-F", "Date"]
 
         return df
 
-# def max_goals_df
+def get_max_goals_df():
+
+    response = supabase.table("match").select("League, home_team:team!hometeamid_fk(name), hometeamscorefull").eq
 
 result_table = filter_options_table(filter_button,filter_league_button)
 
-st.dataframe(result_table,
-             use_container_width=False, 
-             hide_index=True,)
+column_order = ("Home", "HT-H", "HT-F", "Away", "AW-H", "AW-F", "Date")
 
-chart = (
-    alt.Chart(result_table)
-    .mark_bar()
-    .encode(
-        alt.X("Nucleotide:O"),
-        alt.Y("Similarities"),
-        alt.Color("Nucleotide:O"),
-        alt.Tooltip(["Nucleotide", "Similarities"]),
-    )
-    .interactive()
-)
-st.altair_chart(chart)
+st.dataframe(result_table,
+             width="content", 
+             hide_index=True,
+             column_order=column_order)
+
