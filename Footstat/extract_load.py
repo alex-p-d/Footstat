@@ -21,19 +21,25 @@ pd.set_option('display.expand_frame_repr', False)
 # ==========================================
 # 2. YOUR EXACT DATA FETCHING LOGIC
 # ==========================================
-league_list = ['eng.2','eng.3','eng.4','eng.5']
+league_list = ['eng.2','eng.3','eng.4','eng.5','esp.1','esp.2','ger.1',
+               'fra.1','bel.1','ned.1','ita.1','por.1','aut.1','bra.1',
+               'mex.1','arg.1','sco.1','ksa.1','usa.1','jpn.1','tur.1']
 
-def set_league_name(league):
-    name = ''
-    if league == 'eng.2':
-        name = 'Championship England'
-    elif league == 'eng.3':
-        name = 'League 1'
-    elif league == 'eng.4':
-        name = 'League 2'
-    elif league == 'eng.5':
-        name = 'National League'
-    return name
+league_dict = {'eng.2':'Championship England','eng.3':'League 1',
+               'eng.4':'League 2','eng.5':'National League',
+               'esp.1':'Spain - LaLiga','esp.2':'Spain - LaLiga 2','ger.1':'Germany - Bundesliga',
+               'fra.1':'France - Ligue 1','bel.1':'Belgian Pro League',
+               'ned.1':'Netherlands - Eredivisie','ita.1':'Italian - Serie A',
+               'por.1':'Portugal - Primeira Liga','aut.1':'Austrian Bundesliga',
+               'bra.1':'Brazilian - Serie A', 'mex.1':'Mexico - Liga MX',
+               'arg.1':'Argentina - Liga Profesional','sco.1':'Scottish Premiership',
+               'ksa.1':'Saudi Pro League','usa.1':'USA - Major League Soccer',
+               'jpn.1':'Japanese J.League','tur.1':'Turkish - Super Lig'
+               }
+
+def set_league_name(league, league_dict):
+    return league_dict.get(league)
+   
 
 clean_matches_list = list()
 
@@ -74,7 +80,7 @@ for league in league_list:
                                 
         clean_matches_list.append(
             {
-            'League' : set_league_name(league),
+            'League' : set_league_name(league, league_dict),
             'ID' : match_id,
             'Date' : match_date,
             'Home Team ID' : homeTeamID,
@@ -91,13 +97,16 @@ for league in league_list:
 final_df = pd.DataFrame(clean_matches_list)
 
 # list of dictionaries of teams to insert into postgres
-team_columns = ['Home Team ID', 'Home Team']
-teams_list = (final_df[team_columns]
-            .copy()
-            .drop_duplicates()
-            .rename(columns={'Home Team ID':'id',
-                             'Home Team':'name'})
-            .to_dict(orient='records'))
+home_teams = final_df[['Home Team ID', 'Home Team']].rename(
+    columns={'Home Team ID': 'id', 'Home Team': 'name'})
+
+away_teams = final_df[['Away Team ID', 'Away Team']].rename(
+    columns={'Away Team ID': 'id', 'Away Team': 'name'})
+
+teams_df = pd.concat([home_teams, away_teams], ignore_index=True)
+
+teams_df = teams_df.drop_duplicates(subset=['id'], keep='first')
+teams_list = teams_df.to_dict(orient='records')
 
 # list of dictionaries of matches to insert into postgres
 matches_columns = ['ID',
@@ -124,6 +133,13 @@ matches_list = (final_df[matches_columns]
                                .replace({np.nan: None})
                                .to_dict(orient='records'))
 
+duplicate_ids = final_df[
+    final_df.duplicated(subset=['ID'], keep=False)
+].sort_values('ID')
+
+print(duplicate_ids[
+    ['ID', 'League', 'Date', 'Home Team', 'Away Team']
+].to_string(index=False))
 
 print(f"Found {len(matches_list)} matches ready for insert.")
 
@@ -133,14 +149,18 @@ for match in matches_list:
         if match.get(col) is not None:
             match[col] = int(match[col])
 
+print("UPserting teams...")
 response = (
     supabase.table("team")
     .upsert(teams_list)
     .execute()
 )
 
+print("UPserting matches...")
 response = (
     supabase.table("match")
     .upsert(matches_list)
     .execute()
 )
+
+print("DONE")

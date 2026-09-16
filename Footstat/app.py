@@ -14,7 +14,13 @@ st.markdown("<h1 style='text-align: center; color: black;'>Footstat - football s
 st.divider()
 options_goals=["1+","2+","3+","4+"]
 filter_button = st.selectbox("Голове", options=options_goals, index=2)
-options_leagues=["Championship England", "League 1", "League 2", "National League"]
+options_leagues=['Championship England', 'League 1', 'League 2', 'National League',
+                 'Spain - LaLiga','Spain - LaLiga 2','Germany - Bundesliga',
+                 'France - Ligue 1','Belgian Pro League','Netherlands - Eredivisie',
+                 'Italian - Serie A','Portugal - Primeira Liga','Austrian Bundesliga',
+                 'Brazilian - Serie A','Mexico - Liga MX','Argentina - Liga Profesional',
+                 'Scottish Premiership','Saudi Pro League','USA - Major League Soccer',
+                 'Japanese J.League','Turkish - Super Lig']
 
 ########
 
