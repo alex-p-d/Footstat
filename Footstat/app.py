@@ -10,12 +10,40 @@ def init_connection() -> Client:
 
 supabase = init_connection()
 
-st.title("Footstat")
+st.markdown("<h1 style='text-align: center; color: black;'>Footstat - football statistics</h1>", unsafe_allow_html=True)
+st.divider()
 options_goals=["1+","2+","3+","4+"]
-filter_button = st.selectbox("Goals", options=options_goals, index=2)
-
+filter_button = st.selectbox("Голове", options=options_goals, index=2)
 options_leagues=["Championship England", "League 1", "League 2", "National League"]
-filter_league_button = st.selectbox("Leagues", options=options_leagues)
+
+########
+
+def get_highest_scoring_teams(league):
+
+    top_scoring_teams_response = supabase.table("team_totals").select(
+    "name", "League", "total_score_home", "total_score_away").execute()
+    
+    df_top_scoring_teams = pd.json_normalize(top_scoring_teams_response.data)
+
+    df_only_one_league = df_top_scoring_teams[df_top_scoring_teams['League'] == league]
+    most_goals_team_home = df_only_one_league.loc[df_only_one_league['total_score_home'].idxmax()]
+    most_goals_team_away = df_only_one_league.loc[df_only_one_league['total_score_away'].idxmax()]
+
+    highest_goals_df = pd.DataFrame({
+    'Като домакини': [
+        most_goals_team_home['name'],
+        most_goals_team_home['total_score_home']
+    ],
+    'Като гости': [
+        most_goals_team_away['name'],
+        most_goals_team_away['total_score_away']
+    ]
+}, index=['Team', 'Goals'])
+
+    return highest_goals_df
+
+########
+filter_league_button = st.selectbox("Лига", options=options_leagues)
 
 def filter_options_table(goals,league):
     if filter_button == goals:
@@ -30,20 +58,27 @@ def filter_options_table(goals,league):
 
         df = df[["League", "home_team.name", "hometeamscorehalf", "hometeamscorefull", "away_team.name", "awayteamscorehalf", "awayteamscorefull", "date"]]
         
-        df.columns = ["League" , "Home", "HT-H", "HT-F", "Away", "AW-H", "AW-F", "Date"]
+        df.columns = ['Лига', 'Домакини', 'Полувреме-Д', 'Краен-Д', 'Гости', 'Полувреме-Г', 'Краен-Г', 'Дата']
 
         return df
 
-def get_max_goals_df():
-
-    response = supabase.table("match").select("League, home_team:team!hometeamid_fk(name), hometeamscorefull").eq
-
 result_table = filter_options_table(filter_button,filter_league_button)
 
-column_order = ("Home", "HT-H", "HT-F", "Away", "AW-H", "AW-F", "Date")
+column_order = ('Домакини', 'Полувреме-Д', 'Краен-Д', 'Гости', 'Полувреме-Г', 'Краен-Г', 'Дата')
 
 st.dataframe(result_table,
              width="content", 
              hide_index=True,
              column_order=column_order)
+
+highest_goal_teams = get_highest_scoring_teams(filter_league_button)
+
+st.divider()
+st.markdown("<h5 style='text-align: center; color: black;'>Отбори с най-много голове</h5>", unsafe_allow_html=True)
+# st.write("Отбори с най-много голове")
+
+st.dataframe(highest_goal_teams,
+             width="stretch", 
+             hide_index=True,
+             )
 
