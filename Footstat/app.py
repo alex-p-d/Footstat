@@ -24,9 +24,9 @@ options_leagues=['Championship England', 'League 1', 'League 2', 'National Leagu
 
 ########
 
-def get_highest_scoring_teams(league):
+def get_highest_scoring_teams(league, table):
 
-    top_scoring_teams_response = supabase.table("team_totals").select(
+    top_scoring_teams_response = supabase.table(table).select(
     "name", "League", "total_score_home", "total_score_away").execute()
     
     df_top_scoring_teams = pd.json_normalize(top_scoring_teams_response.data)
@@ -77,10 +77,10 @@ st.dataframe(result_table,
              hide_index=True,
              column_order=column_order)
 
-highest_goal_teams = get_highest_scoring_teams(filter_league_button)
+highest_goal_teams = get_highest_scoring_teams(filter_league_button, "team_totals")
 
 st.divider()
-st.markdown("<h5 style='text-align: center; color: black;'>Отбори с най-много голове</h5>", unsafe_allow_html=True)
+st.markdown("<h5 style='text-align: center; color: black;'>Отбори с най-много голове краен резултат</h5>", unsafe_allow_html=True)
 # st.write("Отбори с най-много голове")
 
 st.dataframe(highest_goal_teams,
@@ -88,3 +88,11 @@ st.dataframe(highest_goal_teams,
              hide_index=True,
              )
 
+highest_goal_teams_half = get_highest_scoring_teams(filter_league_button, "team_totals_half")
+st.divider()
+st.markdown("<h5 style='text-align: center; color: black;'>Отбори с най-много голове първо полувреме</h5>", unsafe_allow_html=True)
+
+st.dataframe(highest_goal_teams_half,
+             width="stretch", 
+             hide_index=True,
+             )
